@@ -117,16 +117,54 @@ function addMessage(role, text) {
   return div;
 }
 
-function addBotMessage(text) {
+let messageId = 0;
+
+function addBotMessage(text, userMessage) {
+  const id = ++messageId;
   const div = document.createElement("div");
   div.className = "message bot";
 
   div.innerHTML = `
     <div class="avatar">S</div>
-    <div class="bubble markdown">${marked.parse(text)}</div>`;
+    <div class="bubble-wrap">
+      <div class="bubble markdown">${marked.parse(text)}</div>
+      <div class="feedback-btns" data-id="${id}">
+        <button class="fb-btn" data-vote="up" title="Helpful">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        </button>
+        <button class="fb-btn" data-vote="down" title="Not helpful">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>
+        </button>
+      </div>
+    </div>`;
+
+  div.querySelectorAll(".fb-btn").forEach((btn) => {
+    btn.addEventListener("click", () => sendFeedback(btn, userMessage, text));
+  });
 
   chatArea.appendChild(div);
   chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+async function sendFeedback(btn, userMessage, botResponse) {
+  const wrap = btn.closest(".feedback-btns");
+  if (wrap.classList.contains("voted")) return;
+
+  const vote = btn.dataset.vote;
+  wrap.classList.add("voted");
+  btn.classList.add("selected");
+
+  try {
+    await fetch(settings.apiUrl + "/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vote,
+        user_message: userMessage,
+        bot_response: botResponse,
+      }),
+    });
+  } catch {}
 }
 
 function addError(text) {
@@ -199,7 +237,7 @@ async function send() {
     const reply =
       data.response || data.answer || data.message || data.reply || data.text;
 
-    addBotMessage(reply || JSON.stringify(data, null, 2));
+    addBotMessage(reply || JSON.stringify(data, null, 2), text);
   } catch (err) {
     hideTyping();
     if (err.name === "TypeError" && err.message === "Failed to fetch") {

@@ -332,6 +332,50 @@ html, body {
   border: 1px solid var(--border);
 }
 
+/* ── Feedback buttons ── */
+.bubble-wrap { display: flex; flex-direction: column; }
+
+.feedback-btns {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.message.bot:hover .feedback-btns { opacity: 1; }
+.feedback-btns.voted { opacity: 1; }
+
+.fb-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.fb-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.fb-btn.selected {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.feedback-btns.voted .fb-btn:not(.selected) {
+  opacity: 0.3;
+  cursor: default;
+}
+
 /* ── Markdown inside bot bubbles ── */
 .bubble.markdown p { margin: 0.4em 0; }
 .bubble.markdown p:first-child { margin-top: 0; }
