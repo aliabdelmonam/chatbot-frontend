@@ -9,6 +9,8 @@ const clearBtn = document.getElementById("clear-btn");
 const apiUrlInput = document.getElementById("api-url");
 const apiEndpointInput = document.getElementById("api-endpoint");
 
+let sessionId = null;
+
 const STORAGE_KEY = "serenity_settings";
 const defaults = { apiUrl: "https://surprising-beauty-production-34f3.up.railway.app", endpoint: "/chat" };
 
@@ -78,6 +80,7 @@ document.addEventListener("click", (e) => {
 // ── Clear chat ──
 
 clearBtn.addEventListener("click", () => {
+  sessionId = null;
   chatArea.innerHTML = `
     <div class="welcome">
       <div class="welcome-icon">
@@ -220,7 +223,10 @@ async function send() {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({
+        query: text,
+        session_id: sessionId,
+      }),
     });
 
     hideTyping();
@@ -238,6 +244,10 @@ async function send() {
     }
 
     const data = await res.json();
+
+    if (data.session_id) {
+      sessionId = data.session_id;
+    }
 
     const reply =
       data.response || data.answer || data.message || data.reply || data.text;
