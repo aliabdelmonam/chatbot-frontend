@@ -12,7 +12,7 @@ const apiEndpointInput = document.getElementById("api-endpoint");
 let sessionId = null;
 
 const STORAGE_KEY = "serenity_settings";
-const defaults = { apiUrl: "https://surprising-beauty-production-34f3.up.railway.app", endpoint: "/chat" };
+const defaults = { apiUrl: "https://abdellmohsennn-mental-assistance-app.hf.space", endpoint: "/chat" };
 
 function loadSettings() {
   try {
